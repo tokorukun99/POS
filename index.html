@@ -12,6 +12,31 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="POS Kasir">
+
+    <!-- Force Landscape -->
+    <style>
+        /* Paksa landscape via CSS rotation jika device portrait */
+        @media screen and (orientation: portrait) {
+            html {
+                transform: rotate(90deg);
+                transform-origin: left top;
+                width: 100vh;
+                height: 100vw;
+                overflow-x: hidden;
+                position: absolute;
+                top: 100%;
+                left: 0;
+            }
+        }
+        @media screen and (orientation: landscape) {
+            html {
+                transform: none;
+                width: 100%;
+                height: 100%;
+                position: static;
+            }
+        }
+    </style>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -4687,6 +4712,20 @@ if ('serviceWorker' in navigator) {
 </div>
 
     <script>
+        // Lock orientasi ke landscape
+        function lockLandscape() {
+            const sc = window.screen;
+            const ori = sc.orientation || sc.msOrientation || sc.mozOrientation;
+            if (ori && ori.lock) {
+                ori.lock('landscape').catch(() => {});
+            }
+        }
+        // Coba lock saat load dan saat visibility change
+        lockLandscape();
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) lockLandscape();
+        });
+
         // Register Service Worker (PWA - install sebagai app)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
