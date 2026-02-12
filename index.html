@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS Kasir - Sistem Lengkap Grosir Sembako</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FF6B35">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="POS Kasir">
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -1343,6 +1351,14 @@
             </div>
             
             <div class="header-actions">
+                <button id="installBtn" onclick="installApp()"
+                    style="display:none;align-items:center;gap:6px;
+                           background:#fff;color:var(--primary);
+                           border:2px solid var(--primary);
+                           padding:8px 14px;border-radius:10px;
+                           font-size:13px;font-weight:700;cursor:pointer;">
+                    📲 Install App
+                </button>
                 <button class="btn-header" onclick="openProducts()">📦 Produk</button>
                 <button class="btn-header" onclick="openCostPrice()">💰 Harga Kulakan</button>
                 <button class="btn-header" onclick="openReports()">📊 Laporan</button>
@@ -4670,5 +4686,41 @@ if ('serviceWorker' in navigator) {
     </div>
 </div>
 
+    <script>
+        // Register Service Worker (PWA - install sebagai app)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('[PWA] Service Worker registered:', reg.scope))
+                    .catch(err => console.warn('[PWA] SW registration failed:', err));
+            });
+        }
+
+        // Prompt install ke home screen
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Tampilkan tombol install jika ada
+            const btn = document.getElementById('installBtn');
+            if (btn) btn.style.display = 'flex';
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('[PWA] App installed!');
+            const btn = document.getElementById('installBtn');
+            if (btn) btn.style.display = 'none';
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choice => {
+                    console.log('[PWA] User choice:', choice.outcome);
+                    deferredPrompt = null;
+                });
+            }
+        }
+    </script>
 </body>
 </html>
